@@ -2,11 +2,9 @@ package goradixtree
 
 import "fmt"
 
-
 // 2019.03.10
 
 type kind uint8
-
 
 type children []*Node
 
@@ -21,18 +19,16 @@ type Node struct {
 	Handler  handlerFunc
 }
 
-
-func newNode(k kind, pre string, ppath string) *Node {
+func newNode(k kind, pre string, ppath string, handler handlerFunc) *Node {
 	return &Node{
 		Kind:    k,
 		Lable:   pre[0],
 		Preffix: pre,
 		ppath:   ppath,
+		Handler: handler,
 	}
 }
 
-
-//添加子节点
 func (node *Node) addChild(n *Node) {
 	node.Children = append(node.Children, n)
 }
@@ -45,7 +41,6 @@ func (node *Node) findChild(l byte, k kind) *Node {
 	}
 	return nil
 }
-
 
 func (node *Node) findChildWithLabel(l byte) *Node {
 	for _, c := range node.Children {
@@ -64,7 +59,6 @@ func (node *Node) findChildByKind(k kind) *Node {
 	}
 	return nil
 }
-
 
 func (node *Node) addHandler(handler handlerFunc) {
 	node.Handler = handler
@@ -90,8 +84,8 @@ func NewRadixTree() *RadixTree {
 	}
 }
 
-
 func (r *RadixTree) Insert(k kind, path string, handler handlerFunc) *RadixTree {
+
 	if path == "" {
 		panic("path cant be empty")
 	}
@@ -99,16 +93,17 @@ func (r *RadixTree) Insert(k kind, path string, handler handlerFunc) *RadixTree 
 	if path[0] != '/' {
 		path = "/" + path
 	}
+
 	ppath := path
 	cn := r.tree
 	search := path
-	for {
 
+	for {
 		sl := len(search)
 		pl := len(cn.Preffix)
-		max := pl
 		l := 0
 
+		max := pl
 		if sl < max {
 			max = sl
 		}
@@ -123,20 +118,23 @@ func (r *RadixTree) Insert(k kind, path string, handler handlerFunc) *RadixTree 
 			if handler != nil {
 				cn.Handler = handler
 			}
-			fmt.Println("ok")
 		} else if l < pl {
-			n := newNode(cn.Kind, cn.Preffix[:l], ppath)
+
+			n := newNode(cn.Kind, cn.Preffix[l:], ppath, handler)
+
 			n.Children = cn.Children
 			cn.Preffix = search[:l]
 			cn.addChild(n)
+
 			if l == sl {
 				cn.Handler = handler
 				cn.addHandler(handler)
 			} else {
-				n = newNode(k, search[:l], ppath)
+				n = newNode(k, search[l:], ppath, handler)
 				n.addHandler(handler)
 				cn.addChild(n)
 			}
+
 		} else if l < sl {
 			search = search[l:]
 			c := cn.findChildWithLabel(search[0])
@@ -144,18 +142,22 @@ func (r *RadixTree) Insert(k kind, path string, handler handlerFunc) *RadixTree 
 				cn = c
 				continue
 			}
-			n := newNode(k, search, ppath)
+
+			n := newNode(k, search, ppath, handler)
 			n.addHandler(handler)
 			cn.addChild(n)
+
 		} else {
 			if handler != nil {
 				cn.addHandler(handler)
 				cn.ppath = path
 			}
 		}
+
 		break
 
 	}
+
 	return r
 
 }
@@ -164,8 +166,8 @@ func (r *RadixTree) FindNode(path string) *Node {
 	search := path
 	cn := r.tree
 	for {
+
 		if search == "" {
-			fmt.Println("path is nil")
 			return nil
 		}
 
@@ -174,11 +176,9 @@ func (r *RadixTree) FindNode(path string) *Node {
 		pl := len(cn.Preffix)
 
 		max := pl
-
 		if sl < max {
 			max = sl
 		}
-
 		for ; l < max && search[l] == cn.Preffix[l]; l++ {
 
 		}
@@ -202,13 +202,3 @@ func (r *RadixTree) FindNode(path string) *Node {
 	return cn
 
 }
-
-
-
-
-
-
-
-
-
-
