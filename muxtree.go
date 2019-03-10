@@ -82,7 +82,7 @@ func (r *RadixTree) getNode() *Node {
 	return r.tree
 }
 
-func newRadixTree() *RadixTree {
+func NewRadixTree() *RadixTree {
 	return &RadixTree{
 		tree: &Node{
 
