@@ -91,7 +91,7 @@ func NewRadixTree() *RadixTree {
 }
 
 
-func (r *RadixTree) insert(k kind, path string, handler handlerFunc) *RadixTree {
+func (r *RadixTree) Insert(k kind, path string, handler handlerFunc) *RadixTree {
 	if path == "" {
 		panic("path cant be empty")
 	}
@@ -160,7 +160,7 @@ func (r *RadixTree) insert(k kind, path string, handler handlerFunc) *RadixTree 
 
 }
 
-func (r *RadixTree) findNode(path string) *Node {
+func (r *RadixTree) FindNode(path string) *Node {
 	search := path
 	cn := r.tree
 	for {
